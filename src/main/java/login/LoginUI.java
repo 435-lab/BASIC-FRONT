@@ -1,7 +1,6 @@
 package org.example.login;
 
-import org.example.BoardApp;
-import org.example.register.Register;
+import org.example.Board.BoardUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,13 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.example.register.Register;
 
 public class LoginUI extends JFrame {
     private JTextField idField;
     private JPasswordField passwordField;
     private ConfigManager configManager;
     private NetworkManager networkManager;
+    private String jwtToken;  // JWT 토큰 저장 변수
 
     public LoginUI() {
         configManager = new ConfigManager();
@@ -115,10 +115,10 @@ public class LoginUI extends JFrame {
         loginButton.addActionListener(e -> loginUser());
         buttonPanel.add(loginButton);
 
-        JButton registerButton = createStyledButton("회원가입", new Color(181,181,181));
+        JButton registerButton = createStyledButton("회원가입", new Color(181, 181, 181));
         registerButton.addActionListener(e -> {
-            dispose();
-            new Register();
+            dispose();  // 현재 창 닫기
+            new Register();  // 회원가입 창 열기
         });
         buttonPanel.add(registerButton);
 
@@ -161,47 +161,32 @@ public class LoginUI extends JFrame {
         networkManager.sendDataToServer(loginData, this::handleLoginResponse);
     }
 
+    // 로그인 응답을 처리하는 메서드
     private void handleLoginResponse(int responseCode, String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response);
 
-            int status = jsonNode.get("status").asInt();
-            String message = jsonNode.get("message").asText();
             boolean result = jsonNode.get("result").asBoolean();
-
             if (result) {
-                JOptionPane.showMessageDialog(null, "로그인 성공", "로그인", JOptionPane.INFORMATION_MESSAGE);
+                String jwtToken = jsonNode.get("data").get("token").asText();  // JWT 토큰 가져오기
+                String userId = jsonNode.get("data").get("id").asText();
+
+                JOptionPane.showMessageDialog(null, "로그인 성공! 환영합니다, " + userId + "님", "성공", JOptionPane.INFORMATION_MESSAGE);
 
                 SwingUtilities.invokeLater(() -> {
                     try {
-                        BoardApp boardApp = new BoardApp();
-                        // BoardApp이 성공적으로 생성되면 LoginUI를 닫습니다.
-                        dispose();
+                        BoardUI boardApp = new BoardUI();
+                        boardApp.setLoggedIn(true, userId, jwtToken);  // JWT 토큰 전달
+                        boardApp.setVisible(true);
+                        dispose();  // LoginUI 창 닫기
                     } catch (Exception e) {
                         e.printStackTrace();
                         JOptionPane.showMessageDialog(null, "게시판 화면을 열 수 없습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
                     }
                 });
             } else {
-                String errorMessage;
-                switch (status) {
-                    case 400:
-                        errorMessage = "입력 오류: " + message;
-                        break;
-                    case 401:
-                        errorMessage = "인증 실패: " + message;
-                        break;
-                    case 404:
-                        errorMessage = "사용자를 찾을 수 없습니다: " + message;
-                        break;
-                    case 500:
-                        errorMessage = "서버 오류: " + message;
-                        break;
-                    default:
-                        errorMessage = "알 수 없는 오류: " + message;
-                }
-                JOptionPane.showMessageDialog(null, errorMessage, "로그인 실패", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "로그인 실패", "오류", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             e.printStackTrace();
