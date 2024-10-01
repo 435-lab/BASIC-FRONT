@@ -1,5 +1,7 @@
 package org.example.register;
 
+import org.example.login.LoginUI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -16,6 +18,7 @@ public class RegisterUI extends JFrame {
     private JRadioButton maleButton;
     private JRadioButton femaleButton;
     private JButton registerButton;
+    private JButton backButton;
 
     public RegisterUI() {
         initializeUI();
@@ -56,7 +59,7 @@ public class RegisterUI extends JFrame {
         addFormFields(formPanel, gbc, labelFont);
         addDateFields(formPanel, gbc, labelFont);
         addGenderFields(formPanel, gbc, labelFont);
-        addRegisterButton(formPanel, gbc);
+        addButtons(formPanel, gbc);
 
         return formPanel;
     }
@@ -166,7 +169,7 @@ public class RegisterUI extends JFrame {
         panel.add(genderPanel, gbc);
     }
 
-    private void addRegisterButton(JPanel panel, GridBagConstraints gbc) {
+    private void addButtons(JPanel panel, GridBagConstraints gbc) {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -177,6 +180,19 @@ public class RegisterUI extends JFrame {
         registerButton.setFocusPainted(false);
         registerButton.setPreferredSize(new Dimension(100, 40));
         buttonPanel.add(registerButton);
+
+
+        backButton = new JButton("뒤로가기");
+        backButton.setFont(new Font("맑은 고딕", Font.BOLD, 15));
+        backButton.setBackground(new Color(181, 181, 181));
+        backButton.setForeground(Color.BLACK);
+        backButton.setFocusPainted(false);
+        backButton.setPreferredSize(new Dimension(100, 40));
+        backButton.addActionListener(e -> {
+            dispose();  // 현재 창을 닫고
+            new LoginUI();  // 로그인 창을 열기
+        });
+        buttonPanel.add(backButton);
 
         gbc.gridy++;
         gbc.gridx = 0;
