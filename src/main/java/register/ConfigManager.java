@@ -1,4 +1,4 @@
-package org.example.register;
+package register;
 
 import java.io.IOException;
 import java.io.InputStream;

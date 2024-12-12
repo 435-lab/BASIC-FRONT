@@ -1,11 +1,12 @@
-package org.example.register;
+package register;
 
+import Board.BoardUI;
+import MainPanel.MainApp;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.example.login.LoginUI;
+import login.LoginUI;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,22 +14,24 @@ public class Register {
     private RegisterUI ui;
     private NetworkManager networkManager;
     private ConfigManager configManager;
+    private BoardUI boardUI;
+    private MainApp mainApp;
 
-    public Register() {
+    public Register(Frame parent, MainApp mainApp, BoardUI boardUI) {
+        System.out.println("Register 생성자 호출됨");
+        this.mainApp = mainApp;
+        this.boardUI = boardUI;
         configManager = new ConfigManager();
         String serverUrl = configManager.getProperty("server.url");
         networkManager = new NetworkManager(serverUrl);
 
-        ui = new RegisterUI();
-        ui.setRegisterButtonListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleRegisterButtonClick();
-            }
-        });
+        ui = new RegisterUI(parent, mainApp, boardUI); // MainApp, BoardUI 전달
+//        ui.setRegisterButtonListener(e -> handleRegisterButtonClick());
+        ui.setVisible(true);
     }
 
     private void handleRegisterButtonClick() {
+        System.out.println("handleRegisterButtonClick 메소드 호출 됨");
         String password = new String(ui.getPassword());
         String passwordConfirm = new String(ui.getPasswordConfirm());
 
@@ -52,7 +55,7 @@ public class Register {
             if (result) {
                 JOptionPane.showMessageDialog(null, "회원가입이 완료되었습니다.", "회원가입 성공", JOptionPane.INFORMATION_MESSAGE);
                 ui.dispose();
-                new LoginUI(); // LoginScreen 클래스가 있다고 가정
+                new LoginUI((Frame) ui.getParent(), mainApp, boardUI).setVisible(true); // MainApp, BoardUI 전달
             } else {
                 JOptionPane.showMessageDialog(null, "회원가입 실패: " + message, "오류", JOptionPane.ERROR_MESSAGE);
             }
@@ -60,9 +63,5 @@ public class Register {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "회원가입 중 오류가 발생했습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Register());
     }
 }
