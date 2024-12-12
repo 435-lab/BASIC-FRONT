@@ -1,4 +1,4 @@
-package org.example.Board;
+package Board;
 
 import java.io.IOException;
 import java.io.InputStream;
