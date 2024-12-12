@@ -1,13 +1,16 @@
-package org.example.register;
+package register;
 
-import org.example.login.LoginUI;
+import Board.BoardUI;
+import MainPanel.MainApp;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RegisterUI extends JFrame {
+public class RegisterUI extends JDialog {
     private JTextField idField;
     private JPasswordField passwordField;
     private JPasswordField passwordConfirmField;
@@ -19,31 +22,38 @@ public class RegisterUI extends JFrame {
     private JRadioButton femaleButton;
     private JButton registerButton;
     private JButton backButton;
+    private BoardUI boardUI;
+    private MainApp mainApp;
+    private NetworkManager networkManager;
+    private ConfigManager configManager;
 
-    public RegisterUI() {
+    public RegisterUI(Frame parent, MainApp mainApp, BoardUI boardUI) {
+        super(parent, "회원가입", true);
+        this.mainApp = mainApp;
+        this.boardUI = boardUI;
+        configManager = new ConfigManager();
+        String serverUrl = configManager.getProperty("server.url");
+        networkManager = new NetworkManager(serverUrl);
+
         initializeUI();
     }
 
+
     private void initializeUI() {
-        setTitle("회원가입");
-        setSize(1600, 900);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setSize(800, 600);
+        setLocationRelativeTo(getParent());
         setLayout(new BorderLayout());
-
-        getContentPane().setBackground(new Color(173, 216, 230));
-
+        getContentPane().setBackground(new Color(179, 224, 255));
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(173, 216, 230));
+        mainPanel.setBackground(new Color(179, 224, 255));
         add(mainPanel, BorderLayout.CENTER);
-
         JPanel formPanel = createFormPanel();
         mainPanel.add(formPanel, new GridBagConstraints());
-
         setVisible(true);
     }
 
     private JPanel createFormPanel() {
+
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
         formPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
@@ -72,6 +82,7 @@ public class RegisterUI extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(titleLabel, gbc);
+
     }
 
     private void addFormFields(JPanel panel, GridBagConstraints gbc, Font labelFont) {
@@ -179,8 +190,8 @@ public class RegisterUI extends JFrame {
         registerButton.setForeground(Color.BLACK);
         registerButton.setFocusPainted(false);
         registerButton.setPreferredSize(new Dimension(100, 40));
+        registerButton.addActionListener(e -> handleRegisterButtonClick());
         buttonPanel.add(registerButton);
-
 
         backButton = new JButton("뒤로가기");
         backButton.setFont(new Font("맑은 고딕", Font.BOLD, 15));
@@ -189,8 +200,9 @@ public class RegisterUI extends JFrame {
         backButton.setFocusPainted(false);
         backButton.setPreferredSize(new Dimension(100, 40));
         backButton.addActionListener(e -> {
-            dispose();  // 현재 창을 닫고
-            new LoginUI();  // 로그인 창을 열기
+//            dispose();
+            setVisible(false);
+//            new LoginUI((Frame) getParent(), mainApp, boardUI).setVisible(true);
         });
         buttonPanel.add(backButton);
 
@@ -200,11 +212,41 @@ public class RegisterUI extends JFrame {
         panel.add(buttonPanel, gbc);
     }
 
-    public void setRegisterButtonListener(ActionListener listener) {
-        registerButton.addActionListener(listener);
+    private void handleRegisterButtonClick() {
+        String password = new String(getPassword());
+        String passwordConfirm = new String(getPasswordConfirm());
+
+        if (!password.equals(passwordConfirm)) {
+            JOptionPane.showMessageDialog(this, "비밀번호가 일치하지 않습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Map<String, String> formData = new HashMap<>();
+        formData.put("id", getId());
+        formData.put("password", password);
+        formData.put("name", getName());
+        formData.put("birth", getBirthDate());
+        formData.put("gender", getGender());
+
+        try {
+            JsonNode response = networkManager.sendPostRequest(formData);
+            boolean result = response.get("result").asBoolean();
+            String message = response.get("message").asText();
+
+            if (result) {
+                JOptionPane.showMessageDialog(this, "회원가입이 완료되었습니다.", "회원가입 성공", JOptionPane.INFORMATION_MESSAGE);
+//                dispose();
+                setVisible(false);
+//                new LoginUI((Frame) getParent(), mainApp, boardUI).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "회원가입 실패: " + message, "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "회원가입 중 오류가 발생했습니다: " + ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    // Getter methods
     public String getId() { return idField.getText(); }
     public char[] getPassword() { return passwordField.getPassword(); }
     public char[] getPasswordConfirm() { return passwordConfirmField.getPassword(); }
@@ -219,3 +261,6 @@ public class RegisterUI extends JFrame {
         return maleButton.isSelected() ? "M" : (femaleButton.isSelected() ? "F" : "");
     }
 }
+
+
+

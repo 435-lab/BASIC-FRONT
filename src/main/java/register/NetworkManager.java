@@ -1,4 +1,4 @@
-package org.example.register;
+package register;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
