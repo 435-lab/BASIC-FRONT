@@ -1,4 +1,4 @@
-package org.example.news;
+package news;
 
 public class NewsItem {
     private String dateTime;

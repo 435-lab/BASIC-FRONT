@@ -1,4 +1,4 @@
-package org.example.news;
+package news;
 
 import javax.swing.*;
 import java.io.InputStream;
@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Properties;
 
 public class NewsDataManager {
-    private NewsUI ui;
+    private NewsPanel ui;
     private Properties dbProperties;
 
-    public NewsDataManager(NewsUI ui) {
+    public NewsDataManager(NewsPanel ui) {
         this.ui = ui;
         loadDatabaseProperties();
     }
