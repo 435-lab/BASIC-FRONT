@@ -14,7 +14,7 @@ public class WeatherIconUpdater {
             panel.getWeatherIconLabel().setIcon(WeatherUIBuilder.createLargeScaledImageLabel("/Image/weather/snow.png", 100, 100).getIcon());
         } else if (description.contains("번개") || description.contains("뇌우")) {
             panel.getWeatherIconLabel().setIcon(WeatherUIBuilder.createLargeScaledImageLabel("/Image/weather/lightning.png", 100, 100).getIcon());
-        } else if (description.contains("안개") || description.contains("박무")) {
+        } else if (description.contains("안개") || description.contains("박무") || description.contains("연무")) {
             panel.getWeatherIconLabel().setIcon(WeatherUIBuilder.createLargeScaledImageLabel("/Image/weather/fog.png", 100, 100).getIcon());
         } else {
             panel.getWeatherIconLabel().setIcon(WeatherUIBuilder.createLargeScaledImageLabel("/Image/weather/cloud.png", 100, 100).getIcon());

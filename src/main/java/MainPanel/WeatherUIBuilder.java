@@ -2,8 +2,8 @@ package MainPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class WeatherUIBuilder {
 
@@ -55,61 +55,63 @@ public class WeatherUIBuilder {
         }
     }
 
-    // 왼쪽 패널 생성 (큰 이미지를 사용)
     public static JPanel createLeftPanel(WeatherPanel panel) {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new GridBagLayout());
         leftPanel.setBackground(Color.WHITE);
 
-        // 패널의 크기 고정
         Dimension fixedSize = new Dimension(500, 700);
         leftPanel.setPreferredSize(fixedSize);
         leftPanel.setMinimumSize(fixedSize);
         leftPanel.setMaximumSize(fixedSize);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 20, 0, 20);
+        gbc.insets = new Insets(20, 20, 10, 20); // Reduced bottom inset for temperature row
         gbc.anchor = GridBagConstraints.CENTER;
-        // 콤보박스 추가
+
         JComboBox<String> regionComboBox = panel.getRegionComboBox();
+        regionComboBox.setPreferredSize(new Dimension(300, 50));
+        regionComboBox.setFont(new Font("Arial", Font.PLAIN, 20));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         leftPanel.add(regionComboBox, gbc);
 
-        // 날씨 아이콘과 설명 추가 (큰 이미지)
         JLabel weatherIcon = panel.getWeatherIconLabel();
-        panel.getWeatherDescriptionLabel().setFont(new Font("Arial", Font.PLAIN, 30));
+        JLabel weatherDescriptionLabel = panel.getWeatherDescriptionLabel();
+        weatherDescriptionLabel.setFont(new Font("Arial", Font.PLAIN, 30));
 
-        gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
+        gbc.gridx = 0;
         leftPanel.add(weatherIcon, gbc);
 
         gbc.gridx = 1;
-        leftPanel.add(panel.getWeatherDescriptionLabel(), gbc);
+        leftPanel.add(weatherDescriptionLabel, gbc);
 
-        // 온도 아이콘 및 레이블 추가 (큰 이미지)
-        JLabel temperatureIcon = createLargeScaledImageLabel("/Image/temperature.png", 30, 30);
-        panel.getTemperatureLabel().setFont(new Font("Arial", Font.PLAIN, 20));
+        // Temperature section with reduced vertical spacing
+        JLabel temperatureIcon = createLargeScaledImageLabel("/Image/temperature.png", 60, 60);
+        JLabel temperatureLabel = panel.getTemperatureLabel();
+        temperatureLabel.setFont(new Font("Arial", Font.PLAIN, 30));
         gbc.gridy = 2;
         gbc.gridx = 0;
+        gbc.insets = new Insets(10, 20, 0, 20); // Tighter spacing
         leftPanel.add(temperatureIcon, gbc);
 
         gbc.gridx = 1;
-        leftPanel.add(panel.getTemperatureLabel(), gbc);
+        leftPanel.add(temperatureLabel, gbc);
 
-        // 습도 아이콘 및 레이블 추가 (큰 이미지)
-        JLabel humidityIcon = createLargeScaledImageLabel("/Image/humidity.png", 30, 30);
-        panel.getHumidityLabel().setFont(new Font("Arial", Font.PLAIN, 20));
+        // Humidity section
+        JLabel humidityIcon = createLargeScaledImageLabel("/Image/humidity.png", 60, 60);
+        JLabel humidityLabel = panel.getHumidityLabel();
+        humidityLabel.setFont(new Font("Arial", Font.PLAIN, 30));
         gbc.gridy = 3;
         gbc.gridx = 0;
+        gbc.insets = new Insets(0, 20, 20, 20); // Tighter spacing
         leftPanel.add(humidityIcon, gbc);
 
         gbc.gridx = 1;
-        leftPanel.add(panel.getHumidityLabel(), gbc);
+        leftPanel.add(humidityLabel, gbc);
 
         return leftPanel;
     }
