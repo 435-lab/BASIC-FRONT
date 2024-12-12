@@ -20,24 +20,24 @@ public class DisasterImagePanel extends JPanel {
         System.out.println("DisasterImagePanel 초기화 시작");
         setLayout(new GridLayout(2, 4, 10, 10));
         setPreferredSize(new Dimension(1000, 400));
-
+        setBackground(Color.WHITE);
+        String[] disasterKRNames = {"한파", "호우", "지진", "화재", "산불", "폭염", "감염병", "태풍"};
         String[] disasterNames = {"ColdWave", "Downpour", "Earthquake", "Fire", "ForestFires", "HeatWave", "InfectiousDiseases", "Typhoon"};
 
-        for (String disasterName : disasterNames) {
-            JPanel itemPanel = createDisasterButton(disasterName);
+        for (int i = 0; i < disasterNames.length; i++) {
+            JPanel itemPanel = createDisasterButton(disasterNames[i], disasterKRNames[i]);
             add(itemPanel);
         }
         System.out.println("DisasterImagePanel 초기화 완료");
-
     }
 
-    private JPanel createDisasterButton(String disasterName) {
+    private JPanel createDisasterButton(String disasterName, String disasterKRName) {
         JPanel itemPanel = new JPanel();
         itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
         itemPanel.setBackground(Color.WHITE);
         itemPanel.setPreferredSize(new Dimension(200, 200));
 
-        JLabel disasterLabel = new JLabel(disasterName, SwingConstants.CENTER);
+        JLabel disasterLabel = new JLabel(disasterKRName, SwingConstants.CENTER);
         disasterLabel.setFont(new Font("Arial", Font.BOLD, 18));
         disasterLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -46,8 +46,6 @@ public class DisasterImagePanel extends JPanel {
         imageButton.addActionListener(e -> {
             ((MainApp) SwingUtilities.getWindowAncestor(this)).showDisasterActionPanel(disasterName);
         });
-
-
 
         itemPanel.add(Box.createVerticalGlue());
         itemPanel.add(disasterLabel);
