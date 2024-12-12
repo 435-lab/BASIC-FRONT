@@ -15,175 +15,165 @@ public class WeatherPanel extends JPanel {
     private JLabel humidityLabel;
     private JLabel weatherIconLabel;
     private JComboBox<String> regionComboBox;
-    private ReportsPanel reportsPanel;  // ReportsPanel 인스턴스
+    private ReportsPanel reportsPanel;
     private JPanel imagePanel;
     private GoBoardPanel goBoardPanel;
     private JPanel daTitlePanel;
     private DisasterImagePanel disasterImagePanel;
 
     public WeatherPanel(JLayeredPane rightPanel, JPanel mainPanel, CardLayout cardLayout, DisasterImagePanel disasterImagePanel) {
-
-        // 날씨 정보를 표시할 라벨 초기화
         temperatureLabel = new JLabel("온도: 불러오는 중...");
         weatherDescriptionLabel = new JLabel("날씨: 불러오는 중...");
         humidityLabel = new JLabel("습도: 불러오는 중...");
         weatherIconLabel = new JLabel();
 
-        // DisasterActionPanel 및 DisasterImagePanel 생성
         DisasterActionPanel disasterActionPanel = new DisasterActionPanel(null, mainPanel, cardLayout);
-        disasterImagePanel = new DisasterImagePanel(disasterActionPanel, mainPanel, cardLayout);
-        disasterImagePanel.setPreferredSize(new Dimension(1000, 400));
+        this.disasterImagePanel = new DisasterImagePanel(disasterActionPanel, mainPanel, cardLayout);
+        this.disasterImagePanel.setPreferredSize(new Dimension(1000, 400));
 
-        // 지역 선택 콤보박스 초기화
         regionComboBox = new JComboBox<>(RegionUtil.REGION_MAP.keySet().toArray(new String[0]));
         regionComboBox.setMaximumSize(new Dimension(300, 40));
         regionComboBox.setAlignmentX(Component.CENTER_ALIGNMENT);
         regionComboBox.setSelectedItem("서울특별시");
 
-        // 콤보박스의 이벤트 리스너 설정
         regionComboBox.addActionListener(e -> {
             String selectedRegion = (String) regionComboBox.getSelectedItem();
             String city = RegionUtil.REGION_MAP.get(selectedRegion);
-            updateWeather(city); // 지역이 선택될 때 날씨 업데이트
+            updateWeather(city);
         });
 
-        // 레이아웃 설정 및 패널 구성
         setLayout(new GridBagLayout());
         setBackground(new Color(179, 224, 255));
 
-        // 상단에 reportsPanel 추가 (상단에서 30픽셀 떨어지게 설정)
-        reportsPanel = new ReportsPanel();  // ReportsPanel 인스턴스 생성
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 0, 0, 0);
+
+        // ReportsPanel
+        reportsPanel = new ReportsPanel();
         reportsPanel.setBackground(Color.WHITE);
-        GridBagConstraints gbcReports = new GridBagConstraints();
-        gbcReports.gridx = 0;  // 첫 번째 열
-        gbcReports.gridy = 0;  // 상단에 배치
-        gbcReports.gridwidth = 2;  // 두 열을 모두 차지
-        gbcReports.anchor = GridBagConstraints.NORTH;
-        gbcReports.weightx = 1.0;
-        gbcReports.fill = GridBagConstraints.NONE;
-        gbcReports.insets = new Insets(20, 0, 20, 0);  // 상단20픽셀, 하단 20픽셀 여백 설정
-        add(reportsPanel, gbcReports);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.NORTH;
+//        gbc.weighty = 30;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(0, 0, 50, 0);
+        add(reportsPanel, gbc);
 
-        // 왼쪽 패널 생성 및 추가
-        JPanel leftPanel = WeatherUIBuilder.createLeftPanel(this);
-        GridBagConstraints gbcLeft = new GridBagConstraints();
-        gbcLeft.gridx = 0;
-        gbcLeft.gridy = 2;
-        gbcLeft.weightx = 0.5;
-        gbcLeft.weighty = 1.0;
-        gbcLeft.anchor = GridBagConstraints.EAST;
-        gbcLeft.fill = GridBagConstraints.NONE;
-        gbcLeft.insets = new Insets(0, 0, 0, 0);
-        add(leftPanel, gbcLeft);
+        // WeatherTitlePanel, Left Panel, Right Panel, and GoBoardPanel in one container
+        JPanel weatherContentPanel = new JPanel(new GridBagLayout());
+        weatherContentPanel.setBackground(new Color(179, 224, 255));
+        GridBagConstraints gbcContent = new GridBagConstraints();
 
-        // 오른쪽 패널 추가
-        GridBagConstraints gbcRight = new GridBagConstraints();
-        gbcRight.gridx = 1;
-        gbcRight.gridy = 2;
-        gbcRight.weightx = 0.5;
-        gbcRight.weighty = 1.0;
-        gbcRight.anchor = GridBagConstraints.WEST;
-        gbcRight.fill = GridBagConstraints.NONE;
-        gbcRight.insets = new Insets(0, 0, 0, 0);
-        add(rightPanel, gbcRight);
-
-        // 2번째 행에 상단에 부제목 추가
+        // WeatherTitlePanel
         WeatherTitlePanel = new WeatherTitlePanel();
-        GridBagConstraints gbcWeatherTitle = new GridBagConstraints();
-        gbcWeatherTitle.gridx = 0;
-        gbcWeatherTitle.gridy = 2;
-        gbcWeatherTitle.gridwidth = 2;
-        gbcWeatherTitle.weightx = 1.0;
-        gbcWeatherTitle.weighty = 1.0;
-        gbcWeatherTitle.anchor = GridBagConstraints.NORTH;
-        gbcWeatherTitle.insets = new Insets(0, 0, 0, 0);
-        gbcWeatherTitle.fill = GridBagConstraints.NONE;
-        add(WeatherTitlePanel, gbcWeatherTitle);
+        gbcContent.gridx = 0;
+        gbcContent.gridy = 0;
+        gbcContent.gridwidth = 2;
+        gbcContent.fill = GridBagConstraints.HORIZONTAL;
+        weatherContentPanel.add(WeatherTitlePanel, gbcContent);
 
-        // 2번째 행 하단에 GoBoardPanel 추가
+        // Left Panel
+        JPanel leftPanel = WeatherUIBuilder.createLeftPanel(this);
+        gbcContent.gridx = 0;
+        gbcContent.gridy = 1;
+        gbcContent.gridwidth = 1;
+        gbcContent.anchor = GridBagConstraints.EAST;
+        gbcContent.fill = GridBagConstraints.NONE;
+        weatherContentPanel.add(leftPanel, gbcContent);
+
+        // Right Panel
+        gbcContent.gridx = 1;
+        gbcContent.anchor = GridBagConstraints.WEST;
+        weatherContentPanel.add(rightPanel, gbcContent);
+
+        // GoBoardPanel
         goBoardPanel = new GoBoardPanel(mainPanel, cardLayout);
-        GridBagConstraints gbcGoBoard = new GridBagConstraints();
-        gbcGoBoard.gridx = 0;
-        gbcGoBoard.gridy = 2;
-        gbcGoBoard.gridwidth = 2;
-        gbcGoBoard.weightx = 1.0;
-        gbcGoBoard.anchor = GridBagConstraints.SOUTH;
-        gbcGoBoard.insets = new Insets(20, 0, 0, 0);
-        gbcGoBoard.fill = GridBagConstraints.NONE;
-        add(goBoardPanel, gbcGoBoard);
+        gbcContent.gridx = 0;
+        gbcContent.gridy = 2;
+        gbcContent.gridwidth = 2;
+        gbcContent.weighty = 0;
+        gbcContent.anchor = GridBagConstraints.CENTER;
+        gbcContent.fill = GridBagConstraints.NONE;
+        gbcContent.insets = new Insets(0, 0, 10, 0);
+        weatherContentPanel.add(goBoardPanel, gbcContent);
 
-        // reportsPanel의 summaryLabel에 접근하여 텍스트 설정
+        // Add weatherContentPanel to main panel
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weighty = 0;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        add(weatherContentPanel, gbc);
+
         reportsPanel.getSummaryLabel().setText("Weather summary data loaded!");
 
-        // 최신 기사 부제목 타이틀 패널 생성
-        newsTitlePanel = new JPanel(new BorderLayout());
-        GridBagConstraints gbcNewsTitle = new GridBagConstraints();
-        newsTitlePanel.setPreferredSize(new Dimension(1000, 60));
-        JLabel NewsTitleLabel = new JLabel("최신 기사", SwingConstants.CENTER);
-        NewsTitleLabel.setFont(new Font("Arial", Font.BOLD, 25));
-        NewsTitleLabel.setForeground(new Color(3, 108, 211));
-        gbcNewsTitle.gridx = 0;
-        gbcNewsTitle.gridy = 3;
-        gbcNewsTitle.gridwidth = 2;
-        gbcNewsTitle.weightx = 0;
-        gbcNewsTitle.weighty = 0;
-        gbcNewsTitle.insets = new Insets(20, 0, 0, 0);
-        gbcNewsTitle.fill = GridBagConstraints.NONE;
-        newsTitlePanel.setBackground(Color.WHITE);
-        newsTitlePanel.add(NewsTitleLabel, BorderLayout.CENTER);
-        add(newsTitlePanel, gbcNewsTitle);
+        // News Title Panel
+        newsTitlePanel = createTitlePanel("최신 기사");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.insets = new Insets(30, 0, 0, 0);
+        add(newsTitlePanel, gbc);
 
-        // NewsSummaryPanel 추가
+        // NewsSummaryPanel
         NewsSummaryPanel newsSummaryPanel = new NewsSummaryPanel();
-        GridBagConstraints gbcNewsSummary = new GridBagConstraints();
         newsSummaryPanel.setPreferredSize(new Dimension(1000, 200));
-        gbcNewsSummary.gridx = 0;
-        gbcNewsSummary.gridy = 4;
-        gbcNewsSummary.gridwidth = 2;
-        gbcNewsSummary.insets = new Insets(0, 0, 10, 0);
-        gbcNewsSummary.fill = GridBagConstraints.NONE;
-        add(newsSummaryPanel, gbcNewsSummary);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weighty = 0;
+        gbc.insets = new Insets(0, 0, 30, 0);
 
-        // DisasterActionImage의 부제목 타이틀 패널 생성
-        daTitlePanel = new JPanel(new BorderLayout());
-        GridBagConstraints gbcdaTitle = new GridBagConstraints();
-        daTitlePanel.setPreferredSize(new Dimension(1000, 60));
-        JLabel daTitleLabel = new JLabel("재난행동요령 바로가기", SwingConstants.CENTER);
-        daTitleLabel.setFont(new Font("Arial", Font.BOLD, 25));
-        daTitleLabel.setForeground(new Color(3, 108, 211));
-        gbcdaTitle.gridx = 0;
-        gbcdaTitle.gridy = 5;
-        gbcdaTitle.gridwidth = 2;
-        gbcdaTitle.weightx = 0;
-        gbcdaTitle.weighty = 0;
-        gbcdaTitle.insets = new Insets(20, 0, 0, 0);
-        gbcdaTitle.fill = GridBagConstraints.NONE;
-        daTitlePanel.setBackground(Color.WHITE);
-        daTitlePanel.add(daTitleLabel, BorderLayout.CENTER);
-        add(daTitlePanel, gbcdaTitle);
+        add(newsSummaryPanel, gbc);
 
-        // DisasterImagePanel 추가
-        GridBagConstraints gbcDisasterImages = new GridBagConstraints();
-        gbcDisasterImages.gridx = 0;
-        gbcDisasterImages.gridy = 7;
-        gbcDisasterImages.gridwidth = 2;
-        gbcDisasterImages.insets = new Insets(0, 0, 20, 0);
-        gbcDisasterImages.fill = GridBagConstraints.NONE;
-        add(disasterImagePanel, gbcDisasterImages);
+        // Disaster Action Title Panel
+        daTitlePanel = createTitlePanel("재난행동요령 바로가기");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        add(daTitlePanel, gbc);
+
+        // DisasterImagePanel
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weighty = 0;
+        gbc.insets = new Insets(0, 0, 10, 0);
+        add(this.disasterImagePanel, gbc);
 
         revalidate();
         repaint();
 
-        // 기본적으로 서울특별시의 날씨 정보를 초기화
         updateWeather("Seoul");
     }
 
-    // 날씨 정보를 업데이트하는 메서드
-    public void updateWeather(String city) {
-        WeatherUpdater.updateWeather(this, city);  // WeatherUpdater를 통해 날씨 정보 업데이트
+    private JPanel createTitlePanel(String title) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setPreferredSize(new Dimension(1000, 60));
+
+        JLabel label = new JLabel(title, SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 25));
+        label.setForeground(new Color(3, 108, 211));
+        label.setVerticalAlignment(SwingConstants.CENTER); // 상하 중앙 정렬
+        label.setHorizontalAlignment(SwingConstants.CENTER); // 좌우 중앙 정렬
+
+        panel.setBackground(Color.WHITE);
+        panel.add(label, BorderLayout.CENTER); // 중앙에 배치
+
+        return panel;
     }
 
-    // 라벨들을 반환하는 Getter 메서드
+
+    public void updateWeather(String city) {
+        WeatherUpdater.updateWeather(this, city);
+    }
+
     public JLabel getTemperatureLabel() {
         return temperatureLabel;
     }

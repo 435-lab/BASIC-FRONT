@@ -3,6 +3,7 @@ package MainPanel;
 import Board.BoardUI;
 import DisasterActionTips.DisasterActionPanel;
 import DisasterActionTips.DisasterImagePanel;
+import DisasterMap.maptotal;
 import news.NewsPanel;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ public class MainApp extends JFrame {
     private BoardUI boardUIPanel;
     private DisasterImagePanel disasterImagePanel;
     private DisasterActionPanel disasterActionPanel;
+    private maptotal mapTotal;
 
     public MainApp() {
         setTitle("SFD");
@@ -24,11 +26,8 @@ public class MainApp extends JFrame {
         mainPanel = new JPanel(cardLayout);
         mainPanel.setBackground(new Color(179, 224, 225));
 
-
-
         // 재난행동요령 패널 및 ImageCardPanel 생성
         disasterActionPanel = new DisasterActionPanel(this, mainPanel, cardLayout);
-//        ImageCardPanel imageCardPanel = disasterActionPanel.getImageCardPanel(); // ImageCardPanel 가져오기
 
         // 재난 이미지 패널 생성 및 ImageCardPanel 전달
         disasterImagePanel = new DisasterImagePanel(disasterActionPanel, mainPanel, cardLayout);
@@ -46,6 +45,9 @@ public class MainApp extends JFrame {
         scrollPane.setBackground(new Color(179, 224, 255));
         weatherPanel.setBackground(new Color(179, 224, 255));
 
+        // 재난 지도
+        mapTotal = new maptotal();
+
         // 제보 게시판 패널 생성
         boardUIPanel = new BoardUI(this);
 
@@ -54,6 +56,7 @@ public class MainApp extends JFrame {
         mainPanel.add(disasterImagePanel, "DisasterImagePanel");
         mainPanel.add(disasterActionPanel, "DisasterActionPanel");
         mainPanel.add(boardUIPanel, "BoardUI");
+        mainPanel.add(mapTotal, "DisasterMessageMap");
 
         // 뉴스 패널 추가
         NewsPanel newsPanel = new NewsPanel();
@@ -66,7 +69,7 @@ public class MainApp extends JFrame {
         // 메인 패널 추가
         add(mainPanel, BorderLayout.CENTER);
         pack();
-        setSize(1700, 1080);
+        setSize(1700, 1200);
 
         // 초기 화면을 WeatherPanel로 설정
         cardLayout.show(mainPanel, "WeatherPanel");
@@ -80,6 +83,10 @@ public class MainApp extends JFrame {
     }
 
     public static void main(String[] args) {
+        // JVM 옵션 설정
+        System.setProperty("prism.order", "sw"); // 소프트웨어 렌더링 강제
+        System.setProperty("prism.verbose", "true"); // 렌더링 디버깅 활성화
+        System.setProperty("javafx.embed.singleThread", "true"); // macOS 스레드 문제 해결
         SwingUtilities.invokeLater(() -> {
             MainApp app = new MainApp();
             app.setVisible(true);
@@ -137,8 +144,9 @@ public class MainApp extends JFrame {
                     linkButton.addActionListener(e -> cardLayout.show(mainPanel, "NewsPanel"));
                 } else if (text.equals("제보 게시판")) {
                     linkButton.addActionListener(e -> cardLayout.show(mainPanel, "BoardUI"));
+                } else if (text.equals("재난 지도")) {
+                    linkButton.addActionListener(e -> cardLayout.show(mainPanel, "DisasterMessageMap"));
                 }
-
                 linkButton.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseEntered(java.awt.event.MouseEvent evt) {

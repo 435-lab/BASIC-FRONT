@@ -1,45 +1,58 @@
 package MainPanel;
 
+import org.json.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.json.JSONObject;
 
 public class ReportsPanel extends JPanel {
 
     private JLabel summaryLabel;
     private JLabel subtitleLabel;
+    private String gptUrl;
 
     public ReportsPanel() {
+        // GPTConfigManager를 사용하여 gpt.url 값을 읽어옴
+        GPTConfigManager configManager = new GPTConfigManager();
+        gptUrl = configManager.getProperty("gpt.url");
+
         setLayout(new GridLayout(2, 1));  // 상위 패널을 2행 1열로 설정
         setBackground(Color.WHITE);
+        Dimension fixedSize = new Dimension(1000, 450); // 원하는 크기로 조정
+        setPreferredSize(fixedSize);
+        setMinimumSize(fixedSize);
+        setMaximumSize(fixedSize);
+
         // 부제목 라벨을 위한 패널
         JPanel subtitlePanel = new JPanel();
-        subtitlePanel.setPreferredSize(new Dimension(1000, 60));
-        subtitlePanel.setLayout(new BorderLayout());  // 레이아웃 설정
+        subtitlePanel.setPreferredSize(new Dimension(1000, 50));
+        subtitlePanel.setLayout(new BorderLayout());
         subtitleLabel = new JLabel("재난 제보 게시판 AI 기반 요약", SwingConstants.CENTER);
         subtitleLabel.setFont(new Font("Arial", Font.BOLD, 25));
         subtitleLabel.setForeground(new Color(3, 108, 211));
-
-        // 여기서 EmptyBorder로 여백 설정
-        subtitleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));  // 상단 10px, 하단 10px 여백
-
+        subtitleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         subtitlePanel.setBackground(Color.WHITE);
-        subtitlePanel.add(subtitleLabel, BorderLayout.CENTER);  // 부제목 라벨 추가
-
+        subtitlePanel.add(subtitleLabel, BorderLayout.NORTH);
 
         // 요약 데이터를 표시할 라벨을 위한 패널
         JPanel summaryPanel = new JPanel();
-        subtitlePanel.setPreferredSize(new Dimension(1000, 150));
-        summaryPanel.setLayout(new BorderLayout());  // 레이아웃 설정
+        summaryPanel.setPreferredSize(new Dimension(1000, 400)); // 패널 크기 설정
+        summaryPanel.setLayout(new BorderLayout());
+
+        // 라벨 생성 및 텍스트 정렬 설정
         summaryLabel = new JLabel("요약 데이터를 불러오는 중...", SwingConstants.CENTER);
         summaryLabel.setFont(new Font("Arial", Font.BOLD, 23));
         summaryLabel.setForeground(new Color(3, 108, 211));
+        summaryLabel.setHorizontalAlignment(SwingConstants.CENTER); // 좌우 중앙 정렬
+        summaryLabel.setVerticalAlignment(SwingConstants.CENTER);   // 상하 중앙 정렬
+
+
         summaryPanel.setBackground(Color.WHITE);
-        summaryPanel.add(summaryLabel, BorderLayout.CENTER);  // 요약 라벨 추가
+        summaryPanel.add(summaryLabel, BorderLayout.NORTH);
 
         // 두 패널을 상위 패널에 추가
         add(subtitlePanel);
@@ -51,8 +64,8 @@ public class ReportsPanel extends JPanel {
 
     private void getSummaryData() {
         try {
-            // GET 요청
-            URL url = new URL("http://192.168.0.101:8081/summarize");
+            // `gptUrl`을 사용하여 요청
+            URL url = new URL(gptUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 
@@ -70,7 +83,6 @@ public class ReportsPanel extends JPanel {
             String summary = choicesObject.getJSONObject("message").getString("content");
 
             // UI 스레드에서 라벨 업데이트
-            // 기존의 summary 데이터를 HTML로 변환하는 예제
             SwingUtilities.invokeLater(() -> {
                 String formattedSummary = "<html><center>" + summary.replace("\n", "<br>") + "</center></html>";
                 summaryLabel.setText(formattedSummary);
@@ -82,7 +94,6 @@ public class ReportsPanel extends JPanel {
         }
     }
 
-    // summaryLabel을 외부에서 접근할 수 있도록 getter 메서드 추가
     public JLabel getSummaryLabel() {
         return summaryLabel;
     }
