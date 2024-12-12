@@ -1,4 +1,4 @@
-package org.example.news;
+package news;
 
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
