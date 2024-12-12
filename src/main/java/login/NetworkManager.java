@@ -1,4 +1,4 @@
-package org.example.login;
+package login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
