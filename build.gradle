@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'pakage'
@@ -11,10 +13,45 @@ repositories {
 
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     implementation 'org.json:json:20230227'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.openjfx:javafx-controls:21'
+    implementation 'org.openjfx:javafx-fxml:21'
+    implementation 'org.openjfx:javafx-web:21'
+    implementation 'org.openjfx:javafx-swing:21'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 }
 
 test {
     useJUnitPlatform()
+}
+
+javafx {
+    version = "21"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing']
+}
+
+tasks.named('run') {
+    jvmArgs = ['--add-modules', 'javafx.controls,javafx.fxml,javafx.web,javafx.swing']
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+application {
+    mainClass = 'MainPanel.MainApp'
+}
+
+// Mac 및 Linux 시스템을 위한 추가 설정
+if (System.getProperty("os.name").toLowerCase().contains("mac") || System.getProperty("os.name").toLowerCase().contains("linux")) {
+    run {
+        jvmArgs += [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'javafx.controls,javafx.fxml,javafx.web,javafx.swing'
+        ]
+    }
 }
