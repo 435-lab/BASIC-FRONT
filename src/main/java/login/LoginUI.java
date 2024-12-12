@@ -1,45 +1,46 @@
-package org.example.login;
+package login;
 
-import org.example.Board.BoardUI;
+import Board.BoardUI;
+import MainPanel.MainApp;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import register.RegisterUI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.register.Register;
 
-public class LoginUI extends JFrame {
+public class LoginUI extends JDialog {
     private JTextField idField;
     private JPasswordField passwordField;
     private ConfigManager configManager;
     private NetworkManager networkManager;
-    private String jwtToken;  // JWT 토큰 저장 변수
+    private MainApp app;  // MainApp 인스턴스 참조
+    private BoardUI boardUI;  // BoardUI 인스턴스 참조
 
-    public LoginUI() {
+    public LoginUI(Frame parent, MainApp app, BoardUI boardUI) {
+        super(parent, "로그인", true);
+        this.app = app;  // MainApp 인스턴스 설정
+        this.boardUI = boardUI;
         configManager = new ConfigManager();
         networkManager = new NetworkManager(configManager.getLoginUrl());
         initializeUI();
     }
 
     private void initializeUI() {
-        setTitle("로그인");
-        setSize(1600, 900);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setSize(800, 600);
+        setLocationRelativeTo(getParent());
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(173, 216, 230));
+        getContentPane().setBackground(new Color(179, 224, 255));
 
         JPanel mainPanel = createMainPanel();
         add(mainPanel, BorderLayout.CENTER);
-
-        setVisible(true);
     }
 
     private JPanel createMainPanel() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(173, 216, 230));
+        mainPanel.setBackground(new Color(179, 224, 255));
 
         JPanel formPanel = createFormPanel();
         mainPanel.add(formPanel, new GridBagConstraints());
@@ -111,14 +112,18 @@ public class LoginUI extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
 
-        JButton loginButton = createStyledButton("로그인", new Color(173, 216, 230));
+        JButton loginButton = createStyledButton("로그인", new Color(179, 224, 255));
         loginButton.addActionListener(e -> loginUser());
         buttonPanel.add(loginButton);
 
-        JButton registerButton = createStyledButton("회원가입", new Color(181, 181, 181));
+        JButton registerButton = createStyledButton("회원가입", Color.LIGHT_GRAY);
         registerButton.addActionListener(e -> {
-            dispose();  // 현재 창 닫기
-            new Register();  // 회원가입 창 열기
+
+//            this.dispose();  // 현재 창 닫기
+//            new RegisterUI((Frame) getParent(), app, boardUI);  // 회원가입 창 열기
+            Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+            RegisterUI registerUI = new RegisterUI(parentFrame, app, boardUI);
+//            SwingUtilities.invokeLater(this::dispose); // 이후 LoginUI 닫기
         });
         buttonPanel.add(registerButton);
 
@@ -161,7 +166,6 @@ public class LoginUI extends JFrame {
         networkManager.sendDataToServer(loginData, this::handleLoginResponse);
     }
 
-    // 로그인 응답을 처리하는 메서드
     private void handleLoginResponse(int responseCode, String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -169,21 +173,16 @@ public class LoginUI extends JFrame {
 
             boolean result = jsonNode.get("result").asBoolean();
             if (result) {
-                String jwtToken = jsonNode.get("data").get("token").asText();  // JWT 토큰 가져오기
+                String jwtToken = jsonNode.get("data").get("token").asText();
                 String userId = jsonNode.get("data").get("id").asText();
 
                 JOptionPane.showMessageDialog(null, "로그인 성공! 환영합니다, " + userId + "님", "성공", JOptionPane.INFORMATION_MESSAGE);
 
                 SwingUtilities.invokeLater(() -> {
-                    try {
-                        BoardUI boardApp = new BoardUI();
-                        boardApp.setLoggedIn(true, userId, jwtToken);  // JWT 토큰 전달
-                        boardApp.setVisible(true);
-                        dispose();  // LoginUI 창 닫기
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        JOptionPane.showMessageDialog(null, "게시판 화면을 열 수 없습니다: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+                    if (app != null) {
+                        app.updateBoardUIWithLogin(userId, jwtToken);  // MainApp의 BoardUI 갱신
                     }
+                    dispose();  // LoginUI 창 닫기
                 });
             } else {
                 JOptionPane.showMessageDialog(null, "로그인 실패", "오류", JOptionPane.ERROR_MESSAGE);
