@@ -1,6 +1,7 @@
 package DisasterActionTips;
 
 import MainPanel.MainApp;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,8 +12,6 @@ public class DisasterActionPanel extends JPanel {
     private JLabel titleLabel;
 
     public DisasterActionPanel(MainApp app, JPanel mainPanel, CardLayout cardLayout) {
-        System.out.println("DisasterActionPanel 생성됨");
-
         setLayout(new BorderLayout());
         setBackground(new Color(179, 224, 255));
 
@@ -37,36 +36,32 @@ public class DisasterActionPanel extends JPanel {
     }
 
     private void addButtonsPanel() {
-        JPanel buttonsPanel = new JPanel(new GridLayout(1, 8, 10, 5)); // 1행 8열 레이아웃
+        JPanel buttonsPanel = new JPanel(new GridLayout(1, 8, 10, 5));
         buttonsPanel.setBackground(Color.WHITE);
 
+        String[] disasterKRNames = {"한파", "호우", "지진", "화재", "산불", "폭염", "감염병", "태풍"};
         String[] disasterNames = {"ColdWave", "Downpour", "Earthquake", "Fire", "ForestFires", "HeatWave", "InfectiousDiseases", "Typhoon"};
 
-        for (String disasterName : disasterNames) {
-            JPanel itemPanel = createImageButtonWithLabel(disasterName);
+        for (int i = 0; i < disasterNames.length; i++) {
+            JPanel itemPanel = createImageButtonWithLabel(disasterNames[i], disasterKRNames[i]);
             buttonsPanel.add(itemPanel);
         }
 
-        add(buttonsPanel, BorderLayout.NORTH); // 상단에 배치
+        add(buttonsPanel, BorderLayout.NORTH);
     }
 
-    private JPanel createImageButtonWithLabel(String disasterName) {
-        JPanel itemPanel = new JPanel();
-        itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
+    private JPanel createImageButtonWithLabel(String disasterName, String disasterKRName) {
+        JPanel itemPanel = new JPanel(new BorderLayout());
         itemPanel.setBackground(Color.WHITE);
-        itemPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton imageButton = createImageButton(disasterName);
 
-        // 재난 이름 레이블 추가
-        JLabel disasterLabel = new JLabel(disasterName, SwingConstants.CENTER);
-        disasterLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        disasterLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel disasterLabel = new JLabel(disasterKRName, SwingConstants.CENTER);
+        disasterLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        disasterLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // 패널에 버튼과 레이블 추가
-        itemPanel.add(imageButton);
-        itemPanel.add(Box.createRigidArea(new Dimension(0, 5))); // 간격 추가
-        itemPanel.add(disasterLabel);
+        itemPanel.add(disasterLabel, BorderLayout.NORTH);
+        itemPanel.add(imageButton, BorderLayout.CENTER);
 
         return itemPanel;
     }
@@ -85,10 +80,10 @@ public class DisasterActionPanel extends JPanel {
             icon = new ImageIcon(imageUrl);
         } else {
             System.err.println("이미지를 로드할 수 없습니다: " + disasterName);
-            icon = new ImageIcon(new BufferedImage(70, 70, BufferedImage.TYPE_INT_RGB));
+            icon = new ImageIcon(new BufferedImage(150, 150, BufferedImage.TYPE_INT_RGB));
         }
 
-        Image image = icon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+        Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
         JButton imageButton = new JButton(new ImageIcon(image));
         imageButton.setBorderPainted(false);
         imageButton.setContentAreaFilled(false);
